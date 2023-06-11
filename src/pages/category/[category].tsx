@@ -40,9 +40,7 @@ export const getStaticPaths: GetStaticPaths<Params> = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps<Props, Params> = async ({
-  params,
-}) => {
+export const getStaticProps: any = async ({ params }: any) => {
   if (params?.category) {
     const response = await getProductsByCategory(params.category);
     return {
