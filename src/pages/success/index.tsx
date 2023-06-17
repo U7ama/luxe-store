@@ -1,60 +1,28 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-import { Button, Center, Group, MediaQuery, rem, Text } from '@mantine/core';
-import { GetServerSideProps } from 'next';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-import { useCartStore } from '@/stores/cart';
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const sessionId = context.query.session_id;
-
-  if (typeof sessionId === 'string') {
-    try {
-      const session = await stripe.checkout.sessions.retrieve(sessionId);
-      const currentTime = Math.floor(Date.now() / 1000);
-
-      const isPaymentSuccessful =
-        session.payment_status === 'paid' && session.expires_at > currentTime;
-
-      if (isPaymentSuccessful) {
-        return {
-          props: {},
-        };
-      }
-
-      return {
-        redirect: {
-          destination: '/',
-          permanent: false,
-        },
-      };
-    } catch (err) {
-      return {
-        redirect: {
-          destination: '/',
-          permanent: false,
-        },
-      };
-    }
-  }
-
-  return {
-    redirect: {
-      destination: '/',
-      permanent: false,
-    },
-  };
-};
+const stripe = require("stripe")(process.env.SK);
+import { Button, Center, Group, MediaQuery, rem, Text } from "@mantine/core";
+import Link from "next/link";
+import { useEffect } from "react";
+import { useCartStore } from "@/stores/cart";
 
 export default function Success() {
-  const router = useRouter();
   const resetCart = useCartStore((state) => state.resetCart);
+  async function paymentConfirm() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get("session_id");
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const currentTime = Math.floor(Date.now() / 1000);
 
+    const isPaymentSuccessful =
+      session.payment_status === "paid" && session.expires_at > currentTime;
+    if (isPaymentSuccessful) {
+      // alert("Payment was successfull");
+      resetCart();
+    } else {
+      alert("Payment was not successfull");
+    }
+  }
   useEffect(() => {
-    router.replace('/success', undefined, { shallow: true });
-    resetCart();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    paymentConfirm();
   }, []);
 
   return (

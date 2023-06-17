@@ -30,7 +30,7 @@ export const useCartStore = create<Cart>()(
 
           if (cartIndex < 0) {
             return {
-              cart: [...state.cart, { ...newItem, quantity: 1, size }],
+              cart: [...state.cart, { ...newItem, quantity: 1, size, name: newItem.attributes.title, price: newItem.attributes.price }],
             };
           }
 
@@ -45,6 +45,7 @@ export const useCartStore = create<Cart>()(
             cart: newCart,
           };
         }),
+
 
       increment: (id, size) =>
         set((state) => {
